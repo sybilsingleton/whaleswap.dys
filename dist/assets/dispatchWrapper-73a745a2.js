@@ -1,0 +1,2 @@
+async function i(o,a){try{const e=await dysonVueStore.dispatch(o,a);if(console.log("response",e),e.code!==0)throw new Error(`Execution failed with code ${e.code}: ${e.rawLog}`);let s=JSON.parse(e.rawLog)[0],r;for(let n of s.events){for(let t of n.attributes)if(t.key==="response"){r=JSON.parse(t.value);break}if(r)break}return{transactionHash:e.transactionHash,...r}}catch(e){throw new Error(`Dispatch failed: ${e.message.split(`
+`)[0]}`)}}export{i as d};
