@@ -1,0 +1,48 @@
+{
+  "_dispatchWrapper-73a745a2.js": {
+    "file": "assets/dispatchWrapper-73a745a2.js"
+  },
+  "src/main.css": {
+    "file": "assets/main-748abb2c.css",
+    "src": "src/main.css"
+  },
+  "src/main.js": {
+    "css": [
+      "assets/main-748abb2c.css"
+    ],
+    "dynamicImports": [
+      "src/views/AboutView.vue",
+      "src/views/PoolList.vue",
+      "src/views/CreatePool.vue"
+    ],
+    "file": "assets/main-c0620d5f.js",
+    "isEntry": true,
+    "src": "src/main.js"
+  },
+  "src/views/AboutView.vue": {
+    "file": "assets/AboutView-93f4fae6.js",
+    "imports": [
+      "src/main.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "src/views/AboutView.vue"
+  },
+  "src/views/CreatePool.vue": {
+    "file": "assets/CreatePool-d43d1ed1.js",
+    "imports": [
+      "_dispatchWrapper-73a745a2.js",
+      "src/main.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "src/views/CreatePool.vue"
+  },
+  "src/views/PoolList.vue": {
+    "file": "assets/PoolList-f0176953.js",
+    "imports": [
+      "src/main.js",
+      "_dispatchWrapper-73a745a2.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "src/views/PoolList.vue"
+  }
+}
