@@ -79,19 +79,19 @@ export default {
       Transaction Hash: {{ txResult.transactionHash }}
     </p>
   </div>
-  <div class="card w-3/12 bg-base-200 m-auto">
+  <div class="card md:w-96 bg-base-200 m-auto">
     <form @submit.prevent="createPool">
       <div class="card-body items-center text-center">
         <h2 class="card-title">Create Pool</h2>
 
-        <div class="form-control w-full max-w-xs">
+        <div class="form-control w-full ">
           <label class="label">
             <span class="label-text">Base Amount</span>
           </label>
           <input v-model="baseAmount" type="text" class="input input-bordered join-item input-primary" />
         </div>
 
-        <div class="form-control w-full max-w-xs">
+        <div class="form-control w-full ">
           <label class="label">
             <span class="label-text">Base Denom</span>
           </label>
@@ -99,7 +99,7 @@ export default {
         </div>
         =
 
-        <div class="form-control w-full max-w-xs">
+        <div class="form-control w-full ">
           <label class="label">
             <span class="label-text">Quote Amount in DYS</span>
           </label>

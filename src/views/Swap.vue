@@ -114,7 +114,6 @@ export default {
     baseAmount: {
       set(amount) {
         this.error = ''
-        console.log('baseAmount', amount)
         this.swap_out_denom = this.pool.quote.denom
         if (amount === '') {
           this.minimum_swap_out_amount = ''
@@ -142,7 +141,6 @@ export default {
     quoteAmount: {
       set(amount) {
         this.error = ''
-        console.log('quoteAmount', amount)
         if (amount === '') {
           this.coins = ''
         } else {
@@ -201,7 +199,6 @@ export default {
         gas: '2230000'
       }
       try {
-        console.log(data)
         this.txResult = await dispatchWrapper(command, data)
 
         console.log(this.txResult)
@@ -212,7 +209,9 @@ export default {
       this.inFlight = false
     }
   },
-  created() {}
+  created() {
+    this.swapBaseQuote()
+  }
 }
 </script>
 
@@ -231,7 +230,7 @@ export default {
     </div>
   </div>
   <div v-else class="flex flex-col w-full border-opacity-50 ">
-    <h1 class="text-2xl font-bold">Swap Pool {{ pool.pool_id}}</h1>
+    <h1 class="text-2xl font-bold text-base-content">Swap Pool {{ pool.pool_id}}</h1>
     <div class="grid flex-grow  card ">
       <div class="form-control">
         <label class="label">
@@ -244,7 +243,7 @@ export default {
           v-model="baseAmount"
         />
         <label class="label">
-          <span class="text-lg">{{ pool.base.denom }}</span>
+          <span class="text-lg label-text">{{ pool.base.denom }}</span>
         </label>
       </div>
     </div>
@@ -263,7 +262,7 @@ export default {
           v-model="quoteAmount"
         />
         <label class="label">
-          <span class="text-lg">{{ pool.quote.denom }}</span>
+          <span class="text-lg label-text">{{ pool.quote.denom }}</span>
         </label>
       </div>
     </div>

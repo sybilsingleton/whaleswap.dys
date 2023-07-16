@@ -13,10 +13,14 @@ export default {
       txResult: null,
       inFlight: false,
       error: null,
-      updating: null // add this line
+      updating: null,
+      availableShares: 'Loading...',
     }
   },
   computed: {
+    sharesDenom: function () {
+      return `pool-${this.pool.pool_id}.whaleswap.dys`
+    },
     address: function () {
       return this.account?.bech32Address
     },
@@ -50,6 +54,19 @@ export default {
     },
   },
   methods: {
+    async fetchPoolShares() {
+      console.log('fetching pool shares', this.sharesDenom)
+      let command = 'cosmos.bank.v1beta1/QueryBalance'
+      let data = {
+        query: {
+          denom: this.sharesDenom,
+        },
+        params: {
+          address: this.address,
+        },
+      }
+      return (await dysonVueStore.dispatch(command, data)).balance.amount
+    },
     async addLiquidity() {
       this.inFlight = true
       this.error = null
@@ -83,7 +100,19 @@ export default {
         this.inFlight = false
       }
     }
-  }
+  },
+  created: async function () {
+    this.availableShares = await this.fetchPoolShares()
+  },
+  watch: {
+    pool: {
+      handler: async function (pool) {
+        console.log('pool changed', pool.pool_id)
+        this.availableShares = await this.fetchPoolShares()
+      },
+      deep: true,
+    },
+  },
 }
 </script>
 
@@ -104,6 +133,14 @@ export default {
       <h1 class="text-2xl font-bold">Join Pool</h1>
 
       <div class="grid flex-grow  card ">
+      <div class="alert">
+        <span class=""> Total shares: {{ pool.total_shares }} </span>
+        <span class="">
+          Your shares: {{ availableShares }} ({{
+            (availableShares / pool.total_shares) * 100
+          }}%)</span
+        >
+      </div>
         <div class="form-control">
           <label class="label">
             <span class="label-text text-lg">Add Exactly</span>

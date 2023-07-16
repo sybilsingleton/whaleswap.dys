@@ -104,10 +104,17 @@ export default {
     </div>
   </div>
   <div v-else class="flex flex-col w-full border-opacity-50">
-    <h1 class="text-2xl font-bold">Exit Pool</h1>
+    <h1 class="text-2xl font-bold text-base-content">Exit Pool</h1>
     <div class="grid flex-grow card">
+      <div class="alert">
+        <span class=""> Total shares: {{ pool.total_shares }} </span>
+        <span class="">
+          Your shares: {{ availableShares }} ({{
+            (availableShares / pool.total_shares) * 100
+          }}%)</span
+        >
+      </div>
       <div class="form-control">
-
         <label class="label">
           <span class="label-text text-lg">Send Exactly </span>
         </label>
@@ -118,13 +125,10 @@ export default {
           v-model="coins"
         />
         <label class="label">
-          <span class="text-lg">{{ sharesDenom }}</span>
+          <span class="label-text text-lg">{{ sharesDenom }}</span>
         </label>
       </div>
     </div>
-    <p class="py-4 text-red-500">
-      {{ error }}
-    </p>
     <button
       class="btn btn-lg btn-block btn-primary"
       @click.prevent="exitPool(pool.pool_id, coins)"
@@ -132,8 +136,8 @@ export default {
     >
       Sign Tx
     </button>
-          <div class="divider"></div>
-        <span class="text-lg"> Total shares: {{ pool.total_shares }} </span>
-        <span class="text-lg"> Your pool shares: {{ availableShares }}  ({{ availableShares / pool.total_shares  * 100}}%)</span>
+    <p class="py-4 text-red-500">
+      {{ error }}
+    </p>
   </div>
 </template>
