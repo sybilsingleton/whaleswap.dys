@@ -178,12 +178,20 @@ export default {
     this.poolStore.setupWebsocket()
   },
 }
+// :style="{ backgroundImage: `url(${home1url})` }"
 </script>
+<style scoped> 
 
+.bg1 {
+  background-image: url("@/assets/img/home-1.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+</style>
 <template>
   <div
-    class="hero min-h-screen"
-    style="background-image: url('/public/img/download-2-enhance.jpg');"
+    class="hero min-h-screen bg1"
   >
     <div class="hero-overlay bg-opacity-10"></div>
     <div class="hero-content text-center text-neutral-content">
