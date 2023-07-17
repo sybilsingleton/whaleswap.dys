@@ -3,8 +3,6 @@
 import { dispatchWrapper } from "./dispatchWrapper.js"
 import { usePoolsStore } from "../stores/pools"
 
-import home1url from "../assets/img/home-1.jpg"
-
 export default {
   name: "HomeView",
   props: ["account"],
@@ -21,7 +19,7 @@ export default {
       inFlight: false,
       txResult: null,
       poolStore: usePoolsStore(),
-      home1url: home1url,
+      home1url: new URL("../assets/img/home-1.jpg" , import.meta.url).href,
     }
   },
   // watch when poolStore.pools changes

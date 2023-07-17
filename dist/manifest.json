@@ -18,12 +18,12 @@
       "src/views/PoolList.vue",
       "src/views/CreatePool.vue"
     ],
-    "file": "assets/main-456d90db.js",
+    "file": "assets/main-7cc8170b.js",
     "isEntry": true,
     "src": "src/main.js"
   },
   "src/views/CreatePool.vue": {
-    "file": "assets/CreatePool-0b197824.js",
+    "file": "assets/CreatePool-1126b300.js",
     "imports": [
       "src/main.js"
     ],
@@ -31,7 +31,7 @@
     "src": "src/views/CreatePool.vue"
   },
   "src/views/PoolList.vue": {
-    "file": "assets/PoolList-decf7e1b.js",
+    "file": "assets/PoolList-30030eae.js",
     "imports": [
       "src/main.js"
     ],
