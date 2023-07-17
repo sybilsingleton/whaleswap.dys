@@ -4,7 +4,7 @@
     "src": "src/assets/img/home-1.jpg"
   },
   "src/main.css": {
-    "file": "assets/main-5394124e.css",
+    "file": "assets/main-f5af02f7.css",
     "src": "src/main.css"
   },
   "src/main.js": {
@@ -12,18 +12,18 @@
       "assets/home-1-77e271ac.jpg"
     ],
     "css": [
-      "assets/main-5394124e.css"
+      "assets/main-f5af02f7.css"
     ],
     "dynamicImports": [
       "src/views/PoolList.vue",
       "src/views/CreatePool.vue"
     ],
-    "file": "assets/main-7cc8170b.js",
+    "file": "assets/main-133b954f.js",
     "isEntry": true,
     "src": "src/main.js"
   },
   "src/views/CreatePool.vue": {
-    "file": "assets/CreatePool-1126b300.js",
+    "file": "assets/CreatePool-86e639de.js",
     "imports": [
       "src/main.js"
     ],
@@ -31,7 +31,7 @@
     "src": "src/views/CreatePool.vue"
   },
   "src/views/PoolList.vue": {
-    "file": "assets/PoolList-30030eae.js",
+    "file": "assets/PoolList-a5439bd9.js",
     "imports": [
       "src/main.js"
     ],
