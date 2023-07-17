@@ -86,8 +86,8 @@ export default {
     </div>
     <div class="navbar-end">
       <span v-if="account">{{ account.name }}</span>
-      <a v-if="keplrAvailable" class="btn btn-primary btn-xs md:btn-md" @click="connectWallet"
-        >Connect <span class="hidden md:visible">Wallet</span></a
+      <a v-if="keplrAvailable && !account" class="btn btn-primary btn-xs md:btn-md" @click="connectWallet"
+        >Connect to Keplr</a
       >
       <input data-toggle-theme="dark,light" class="toggle m-2" type="checkbox" />
     </div>
