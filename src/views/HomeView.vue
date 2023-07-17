@@ -190,7 +190,7 @@ export default {
             <span class="label-text">Swap In amount</span>
           </label>
           <input
-            class="input w-full input-lg"
+            class="input w-full input-lg input-bordered input-primary"
             v-model.number="inAmount"
             type="number"
             min="0"
@@ -199,22 +199,22 @@ export default {
         </div>
         <div class="form-control w-full">
           <label class="label">
-            <span class="label-text">Swap In Denom</span>
+            <span class="label-text">Swap Out Denom</span>
           </label>
-          <input
-            list="denoms"
-            type="text"
-            v-model="inDenom"
-            placeholder="Input Denom"
-            class="input input-bordered input-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
-          />
+          <select v-model="inDenom" class="select w-full input-lg input-bordered input-primary">
+            <option disabled value="">Please select one</option>
+            <option v-for="denom in poolStore.denoms" :key="denom" :value="denom">
+              {{ denom }}
+            </option>
+          </select>
         </div>
+
         <div class="form-control w-full">
           <label class="label">
             <span class="label-text">Minimum Swap Out Amount</span>
           </label>
           <input
-            class="input w-full input-lg"
+            class="input w-full input-lg input-bordered input-primary"
             v-model.number="outAmount"
             type="number"
             placeholder="Output Amount"
@@ -225,22 +225,17 @@ export default {
           <label class="label">
             <span class="label-text">Swap Out Denom</span>
           </label>
-          <input
-            list="denoms"
-            v-model="outDenom"
-            type="text"
-            placeholder="Output Denom"
-            class="input input-bordered input-lg w-full [&::-webkit-calendar-picker-indicator]:opacity-0"
-          />
+          <select v-model="outDenom" class="select w-full input-lg input-bordered input-primary">
+            <option disabled value="">Please select one</option>
+            <option v-for="denom in poolStore.denoms" :key="denom" :value="denom">
+              {{ denom }}
+            </option>
+          </select>
         </div>
-        <datalist id="denoms">
-          <option v-for="denom in poolStore.denoms" :key="denom" :value="denom">
-            {{ denom }}
-          </option>
-        </datalist>
+
         <div class="divider"></div>
         <h2 class="card-title">Best Swap Route</h2>
-        <span v-if="bestSwap.length === 0">No swap found</span>
+        <span v-if="bestSwap.length === 0">No route found with sufficient liquidity </span>
         <span v-else>
           <table class="table">
             <thead>
@@ -268,8 +263,7 @@ export default {
         <div v-if="txResult" class="">
           <div class="alert text-success">
             <div class="break-words break-all">
-              You recieved: {{ txResult.result.output_amount }} {{ txResult.result.output_denom
-              }}
+              You recieved: {{ txResult.result.output_amount }} {{ txResult.result.output_denom }}
               <br />
               {{ txResult.transactionHash }}
             </div>
@@ -284,9 +278,9 @@ export default {
           </div>
         </div>
         <div v-if="bestSwap.length !== 0">
-        Swap {{ coins }} for at least
-        {{ minimum_swap_out_amount }}
-        {{ swap_out_denom }}
+          Swap {{ coins }} for at least
+          {{ minimum_swap_out_amount }}
+          {{ swap_out_denom }}
         </div>
         <button
           :disabled="bestSwap.length === 0 || inFlight"

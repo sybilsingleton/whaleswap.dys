@@ -84,7 +84,7 @@ export default {
       </ul>
     </div>
     <div class="navbar-end">
-      <span v-if="account">{{ address }}</span>
+      <span v-if="account">{{ account.name }}</span>
       <a v-else class="btn btn-primary" @click="connectWallet">Connect Wallet</a>
 
       <input data-toggle-theme="dark,light" class="toggle m-2" type="checkbox" />
