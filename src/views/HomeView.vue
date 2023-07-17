@@ -2,6 +2,9 @@
 /*global dysonVueStore */
 import { dispatchWrapper } from "./dispatchWrapper.js"
 import { usePoolsStore } from "../stores/pools"
+
+import home1url from "../assets/img/home-1.jpg"
+
 export default {
   name: "HomeView",
   props: ["account"],
@@ -18,6 +21,7 @@ export default {
       inFlight: false,
       txResult: null,
       poolStore: usePoolsStore(),
+      home1url: home1url,
     }
   },
   // watch when poolStore.pools changes
@@ -178,21 +182,10 @@ export default {
     this.poolStore.setupWebsocket()
   },
 }
-// :style="{ backgroundImage: `url(${home1url})` }"
 </script>
-<style scoped> 
-
-.bg1 {
-  background-image: url("@/assets/img/home-1.jpg");
-  background-size: cover;
-  background-position: center;
-}
-
-</style>
+<style scoped></style>
 <template>
-  <div
-    class="hero min-h-screen bg1"
-  >
+  <div class="hero min-h-screen" :style="{ backgroundImage: `url(${home1url})` }">
     <div class="hero-overlay bg-opacity-10"></div>
     <div class="hero-content text-center text-neutral-content">
       <div class="max-w-md">
@@ -318,5 +311,4 @@ export default {
       </div>
     </div>
   </div>
-
 </template>
