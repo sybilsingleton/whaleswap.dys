@@ -26,7 +26,6 @@ export default {
       handler: function (newVal, oldVal) {
         console.log("poolStore changed")
         this.calculateSwapIn().then((swapOutAmount) => {
-          console.log("new siwapOutAmount", swapOutAmount)
           this.minimum_swap_out_amount = swapOutAmount
         })
       },
