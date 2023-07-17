@@ -18,7 +18,7 @@ export default {
 
 <template>
   <div class="card">
-    <div class="card-body">
+    <div class="card-body sm:px-8 px-0 py-4">
       <div class="card-title">Pool: {{ pool.pool_id }}</div>
       <div class="stats shadow stats-vertical lg:stats-horizontal bg-base-200">
         <div class="stat">

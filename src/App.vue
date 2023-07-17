@@ -14,21 +14,19 @@ export default {
     address: function () {
       return this.account?.bech32Address
     },
+    keplrAvailable: function () {
+      return !!window.keplr
+    },
   },
   methods: {
-    onMessage(ws, e) {
-      console.log("onMessage", ws, e)
-    },
-    async refreshAccount() {},
     async accountChanged(account) {
       this.account = account
-      return this.refreshAccount()
     },
     async connectWallet() {
       try {
-        this.account = await dysonUseKeplr(this.accountChanged)
+        await dysonUseKeplr(this.accountChanged)
       } catch (e) {
-        this.runResponse = e.toString()
+        this.keplrError = e
       }
     },
   },
@@ -72,7 +70,10 @@ export default {
           <li><RouterLink :to="{ name: 'create-pool' }">Create Pool</RouterLink></li>
         </ul>
       </div>
-      <RouterLink class="btn btn-ghost normal-case text-xl" :to="{ name: 'home' }"
+      <RouterLink
+        class="btn btn-ghost normal-case text-xl"
+        :to="{ name: 'home' }"
+        :active-class="''"
         >WhaleSwap.dys</RouterLink
       >
     </div>
@@ -85,8 +86,9 @@ export default {
     </div>
     <div class="navbar-end">
       <span v-if="account">{{ account.name }}</span>
-      <a v-else class="btn btn-primary" @click="connectWallet">Connect Wallet</a>
-
+      <a v-if="keplrAvailable" class="btn btn-primary btn-xs md:btn-md" @click="connectWallet"
+        >Connect <span class="hidden md:visible">Wallet</span></a
+      >
       <input data-toggle-theme="dark,light" class="toggle m-2" type="checkbox" />
     </div>
   </div>
