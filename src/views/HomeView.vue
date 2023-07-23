@@ -252,7 +252,7 @@ export default {
                     >No route found with sufficient liquidity
                   </span>
                   <span v-else>
-                    <table class="table table-sm">
+                    <table class="table table-sm text-right">
                       <thead>
                         <tr>
                           <th>Pool</th>
