@@ -17,36 +17,34 @@ export default {
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-body sm:px-8 px-0 py-4">
-      <div class="card-title">Pool: {{ pool.pool_id }}</div>
-      <div class="stats shadow stats-vertical lg:stats-horizontal bg-base-200">
+  <div class="flex">
+    <div class="grow">
+      <div class="">Pool: {{ pool.pool_id }}</div>
+      <div class="stats shadow stats-vertical xl:stats-horizontal bg-base-200 grow w-full">
         <div class="stat">
           <div class="stat-value">{{ pool.base.denom }}</div>
-          <div class="stat-actions justify-end">
-            <div class="join">
+          <div class="stat-actions ">
               <button
-                class="btn btn-primary join-item"
+                class="btn btn-primary"
                 @click="$emit('swap', pool)"
                 :disabled="!account"
               >
                 Swap
               </button>
               <button
-                class="btn btn-primary join-item"
+                class="btn btn-primary"
                 @click="$emit('join', pool)"
                 :disabled="!account"
               >
                 Join Pool
               </button>
               <button
-                class="btn btn-primary join-item"
+                class="btn btn-primary"
                 @click="$emit('exit', pool)"
                 :disabled="!account"
               >
                 Exit Pool
               </button>
-            </div>
           </div>
         </div>
         <div class="stat">

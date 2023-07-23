@@ -1,30 +1,36 @@
 <script>
-/*global DYSON_PROTOCOL dysonVueStore*/
-import { useWebSocket } from "@vueuse/core"
+/*global */
 import PoolListItem from "./PoolListItem.vue"
 import Swap from "./Swap.vue"
 import JoinPool from "./JoinPool.vue"
 import ExitPool from "./ExitPool.vue"
 import { usePoolsStore } from "../stores/pools"
 
-function getPoolIndex(poolId) {
-  return `${DYSON_PROTOCOL.SCRIPT_ADDRESS}/pools/${String(poolId).padStart(15, "0")}`
-}
-
-function getPoolId(poolIndex) {
-  return parseInt(poolIndex.split("/").pop())
-}
 const poolStore = usePoolsStore()
 
 export default {
   props: ["account"],
   data() {
     return {
-      pools: poolStore.pools,
       swapPool: null,
       joinPool: null,
       exitPool: null,
+      bgUrl: new URL("../assets/img/swap-bg.jpg", import.meta.url).href,
     }
+  },
+  computed: {
+    pools() {
+      return poolStore.pools
+    },
+    numPools() {
+      return poolStore.numPools
+    },
+    numTrades() {
+      return poolStore.numTrades
+    },
+    tvl() {
+      return poolStore.tvl
+    },
   },
   methods: {
     swap(pool) {
@@ -48,15 +54,34 @@ export default {
 </script>
 
 <template>
-  <PoolListItem
-    :pool="pool"
-    v-for="pool in pools"
-    :key="pool"
-    :account="account"
-    @swap="swap"
-    @join="join"
-    @exit="exit"
-  />
+  <main class="py-10 lg:pl-72">
+    <div class="px-4 sm:px-6 lg:px-8 grid gap-4 grid-cols-1">
+      <div class="stats lg:stats-horizontal">
+        <div class="stat">
+          <div class="stat-title">Number of Pools</div>
+          <div class="stat-value">{{ numPools }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Number of Trades</div>
+          <div class="stat-value">{{ numTrades }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Total Value</div>
+          <div class="stat-value">{{ tvl }} dys</div>
+        </div>
+      </div>
+
+      <PoolListItem
+        :pool="pool"
+        v-for="pool in pools"
+        :key="pool"
+        :account="account"
+        @swap="swap"
+        @join="join"
+        @exit="exit"
+      />
+    </div>
+  </main>
   <dialog id="swapModal" class="modal">
     <form method="dialog" class="modal-box">
       <button

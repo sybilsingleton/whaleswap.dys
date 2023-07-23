@@ -2,6 +2,7 @@
 /*global dysonVueStore */
 
 import { dispatchWrapper } from "./dispatchWrapper.js"
+
 export default {
   props: ["account"],
   data() {
@@ -11,6 +12,7 @@ export default {
       dysAmount: "",
       error: "",
       txResult: null,
+      bgUrl: new URL("../assets/img/create-bg.jpg", import.meta.url).href,
     }
   },
   computed: {
@@ -58,72 +60,85 @@ export default {
 }
 </script>
 <template>
-  <div class="alert alert-success mx-auto my-4 w-1/2" v-if="txResult?.result">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="stroke-current shrink-0 h-6 w-6"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
+  <div class="hero min-h-screen" :style="{ backgroundImage: `url(${bgUrl})` }">
+    <div class="hero-overlay bg-opacity-50"></div>
+    <div class="hero-content text-center">
+      <div class="py-10 lg:pl-72">
+        <div class="px-4 sm:px-6 lg:px-8">
+          <div class="max-w-md">
+            <div class="alert alert-success mx-auto my-4 w-1/2" v-if="txResult?.result">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="stroke-current shrink-0 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
 
-    <p>
-      New pool created: Pool ID {{ txResult.result.pool_id }}<br />
-      You received liquidity shares: {{ txResult.result.total_shares }}
-      {{ txResult.result.shares_denom }}! <br />
-      Transaction Hash: {{ txResult.transactionHash }}
-    </p>
-  </div>
-  <div class="card md:w-96 bg-base-200 m-auto">
-    <form @submit.prevent="createPool">
-      <div class="card-body items-center text-center">
-        <h2 class="card-title">Create Pool</h2>
+              <p>
+                Congratulations! A new pool has been successfully created with Pool ID
+                {{ txResult.result.pool_id }}. You have received {{ txResult.result.total_shares }}
+                {{ txResult.result.shares_denom }} liquidity shares. The transaction hash is
+                {{ txResult.transactionHash }}.
+              </p>
+            </div>
+            <div class="card md:w-96 bg-base-200 m-auto">
+              <form @submit.prevent="createPool">
+                <div class="card-body items-center text-center">
+                  <h2 class="card-title">Create Pool</h2>
 
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Base Amount</span>
-          </label>
-          <input
-            v-model="baseAmount"
-            type="text"
-            class="input input-bordered join-item input-primary"
-          />
-        </div>
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">Base Amount</span>
+                    </label>
+                    <input
+                      v-model="baseAmount"
+                      type="text"
+                      class="input input-bordered join-item input-primary"
+                    />
+                  </div>
 
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Base Denom</span>
-          </label>
-          <input
-            v-model="baseDenom"
-            type="text"
-            class="input input-bordered join-item input-primary"
-          />
-        </div>
-        =
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">Base Denom</span>
+                    </label>
+                    <input
+                      v-model="baseDenom"
+                      type="text"
+                      class="input input-bordered join-item input-primary"
+                    />
+                  </div>
+                  =
 
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Quote Amount in DYS</span>
-          </label>
-          <input
-            v-model="dysAmount"
-            type="text"
-            class="input input-bordered join-item input-primary"
-          />
-        </div>
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">Quote Amount in DYS</span>
+                    </label>
+                    <input
+                      v-model="dysAmount"
+                      type="text"
+                      class="input input-bordered join-item input-primary"
+                    />
+                  </div>
 
-        <div class="text-red-500" v-if="error">Error: {{ error }}</div>
-        <div class="card-actions">
-          <button class="btn btn-primary" :disabled="!address" type="submit">Create Pool</button>
+                  <div class="text-red-500" v-if="error">Error: {{ error }}</div>
+                  <div class="card-actions">
+                    <button class="btn btn-primary" :disabled="!address" type="submit">
+                      Create Pool
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </template>

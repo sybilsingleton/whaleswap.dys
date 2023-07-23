@@ -79,6 +79,14 @@ export default {
       },
       deep: true,
     },
+    account: {
+      handler: async function (account) {
+        console.log('account changed', account)
+        this.availableShares = 'Loading...'
+        this.availableShares = await this.fetchPoolShares()
+      },
+      deep: true,
+    },
   },
 }
 </script>
@@ -95,12 +103,9 @@ export default {
       <!-- loop ofver txResult.result list and show amount and ndenom-->
       <p>
         Sent: {{ coins }} {{ sharesDenom }}<br />
-        Recieved: {{ txResult.result[0].amount }} {{ txResult.result[0].denom }} and
+        You Recieved: {{ txResult.result[0].amount }} {{ txResult.result[0].denom }} and
         {{ txResult.result[1].amount }} {{ txResult.result[1].denom }}
       </p>
-      <pre>
-       {{ txResult }}
-      </pre>
     </div>
   </div>
   <div v-else class="flex flex-col w-full border-opacity-50">

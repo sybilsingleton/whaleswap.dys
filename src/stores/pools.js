@@ -1,5 +1,6 @@
+/* global DYSON_PROTOCOL dysonVueStore*/
 // src/stores/pools.js
-/*global DYSON_PROTOCOL dysonVueStore*/
+
 import { useWebSocket } from "@vueuse/core"
 import { defineStore } from "pinia"
 
@@ -77,24 +78,34 @@ function estimateSwapIn(pool_ids, pools, swap_in_amount, swap_in_denom) {
   let result = []
   for (let pool_id of pool_ids) {
     let pool = pools[pool_id]
-    let input_balance, output_balance, swap_out_denom
+    let input_balance, output_balance, swap_out_denom, current_price
 
     if (pool["base"]["denom"] === swap_in_denom) {
       input_balance = pool["base"]["balance"]
       output_balance = pool["quote"]["balance"]
       swap_out_denom = pool["quote"]["denom"]
+      current_price = pool["quote"]["price"]
     } else {
       input_balance = pool["quote"]["balance"]
       output_balance = pool["base"]["balance"]
       swap_out_denom = pool["base"]["denom"]
+      current_price = pool["base"]["price"]
     }
 
     let { swapOutB: output_amount } = calculateSwapIn(input_balance, output_balance, swap_in_amount)
+
+    let naive_expected_price = swap_in_amount * current_price
+    let price_impact = output_amount / swap_in_amount - naive_expected_price
+
+    // calculate slippage assuming output_amount is the expected amount
+    let slippage = Math.abs((naive_expected_price - output_amount) / naive_expected_price)
 
     result.push({
       pool_id: pool_id,
       in: { amount: swap_in_amount, denom: swap_in_denom },
       out: { amount: output_amount, denom: swap_out_denom },
+      price_impact: price_impact,
+      slippage: slippage,
     })
 
     swap_in_amount = output_amount // the output becomes the input for the next pool
@@ -109,24 +120,34 @@ function estimateSwapOut(pool_ids, pools, swap_out_amount, swap_out_denom) {
   for (let i = pool_ids.length - 1; i >= 0; i--) {
     let pool_id = pool_ids[i]
     let pool = pools[pool_id]
-    let output_balance, input_balance, swap_in_denom
+    let output_balance, input_balance, swap_in_denom, current_price
 
     if (pool["base"]["denom"] === swap_out_denom) {
       output_balance = pool["base"]["balance"]
       input_balance = pool["quote"]["balance"]
       swap_in_denom = pool["quote"]["denom"]
+      current_price = pool["quote"]["price"]
     } else {
       output_balance = pool["quote"]["balance"]
       input_balance = pool["base"]["balance"]
       swap_in_denom = pool["base"]["denom"]
+      current_price = pool["base"]["price"]
     }
 
     let { swapInA: input_amount } = calculateSwapOut(input_balance, output_balance, swap_out_amount)
+
+    let naive_expected_price = input_amount * current_price
+    let price_impact = swap_out_amount / input_amount - naive_expected_price
+
+    // calculate slippage assuming output_amount is the expected amount
+    let slippage = Math.abs((naive_expected_price - swap_out_amount) / naive_expected_price)
 
     result.unshift({
       pool_id: pool_id,
       in: { amount: input_amount, denom: swap_in_denom },
       out: { amount: swap_out_amount, denom: swap_out_denom },
+      price_impact: price_impact,
+      slippage: slippage,
     })
 
     swap_out_amount = input_amount // the input becomes the output for the previous pool
@@ -168,14 +189,56 @@ export const usePoolsStore = defineStore("pools", {
     ws: null,
     denoms: [],
   }),
+  getters: {
+    numPools: (state) => {
+      console.log("numPools", Object.keys(state.pools).length)
+      return Object.keys(state.pools).length
+    },
+    tvl: (state) => {
+      let tvl = 0
+      for (let pool_id in state.pools) {
+        let pool = state.pools[pool_id]
+        tvl += pool.base.balance * pool.base.price
+        tvl += pool.quote.balance
+      }
+      return tvl  
+    },
+    numTrades: (state) => {
+      let numTrades = 0
+      for (let pool_id in state.pools) {
+        let pool = state.pools[pool_id]
+        numTrades += pool.trades || 0
+      }
+      return numTrades
+    },
+    allSwapIns: (state) => (swap_in_amount, swap_in_denom, swap_out_denom) => {
+      return allSwapIns(state.pools, swap_in_amount, swap_in_denom, swap_out_denom)
+    },
+    allSwapOuts: (state) => (swap_in_denom, swap_out_amount, swap_out_denom) => {
+      return allSwapOuts(state.pools, swap_in_denom, swap_out_amount, swap_out_denom)
+    },
+    bestSwapIn: (state, getters) => (swap_in_amount, swap_in_denom, swap_out_denom) => {
+      const swaps = allSwapIns(state.pools, swap_in_amount, swap_in_denom, swap_out_denom)
+      let maxSwapAmount = -Infinity
+      let bestSwap = []
 
+      for (let i = 0; i < swaps.length; i++) {
+        let swapPath = swaps[i]
+        let lastSwapInPath = swapPath[swapPath.length - 1]
+        if (lastSwapInPath.out.amount > maxSwapAmount) {
+          maxSwapAmount = lastSwapInPath.out.amount
+          bestSwap = swapPath
+        }
+      }
+      const pool_ids = bestSwap.map((swap) => swap.pool_id).join(" ")
+      return {
+        pool_ids: pool_ids,
+        bestSwapPath: bestSwap,
+        maxSwapAmount: maxSwapAmount,
+      }
+    },
+  },
   actions: {
-    async allSwapIns(swap_in_amount, swap_in_denom, swap_out_denom) {
-      return await allSwapIns(this.pools, swap_in_amount, swap_in_denom, swap_out_denom)
-    },
-    async allSwapOuts(swap_in_denom, swap_out_amount, swap_out_denom) {
-      return await allSwapOuts(this.pools, swap_in_denom, swap_out_amount, swap_out_denom)
-    },
     async fetchPool(id) {
       let command = "dyson/QueryStorage"
       let data = {
@@ -192,7 +255,7 @@ export const usePoolsStore = defineStore("pools", {
       } catch (e) {
         // delete pool if it doesn't exist anymore
         if (e.toString().includes("not found")) {
-          this.pools = this.pools.filter((pool) => pool.index !== getPoolIndex(id))
+          delete this.pools[id]
         } else {
           alert(e.toString())
         }
