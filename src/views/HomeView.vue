@@ -185,7 +185,7 @@ export default {
 <template>
   <div class="hero min-h-screen" :style="{ backgroundImage: `url(${home1url})` }">
     <div class="hero-overlay bg-opacity-50"></div>
-    <div class="hero-content text-center ">
+    <div class="hero-content text-center">
       <div class="py-10 lg:pl-72">
         <div class="px-4 sm:px-6 lg:px-8">
           <div class="max-w-md">
@@ -252,25 +252,27 @@ export default {
                     >No route found with sufficient liquidity
                   </span>
                   <span v-else>
-                    <table class="table">
+                    <table class="table table-sm">
                       <thead>
                         <tr>
                           <th>Pool</th>
                           <th>Input</th>
                           <th>Output</th>
+                          <th>Slippage</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="(swap, index) in bestSwap" :key="index">
                           <td>{{ swap.pool_id }}</td>
                           <td>
-                            <span class="text-secondary">{{ swap.in.denom }}</span>
-                            {{ swap.in.amount }}
+                            <span class="text-secondary">{{ swap.in.denom }}</span><br />
+                            {{ swap.in.amount }}<br />
                           </td>
                           <td>
-                            <span class="text-accent">{{ swap.out.denom }}</span>
-                            {{ swap.out.amount }}
+                            <span class="text-accent">{{ swap.out.denom }}</span><br />
+                            {{ swap.out.amount }}<br />
                           </td>
+                          <td>{{ Math.round(swap.slippage) }}%</td>
                         </tr>
                       </tbody>
                     </table>

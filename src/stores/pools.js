@@ -84,27 +84,26 @@ function estimateSwapIn(pool_ids, pools, swap_in_amount, swap_in_denom) {
       input_balance = pool["base"]["balance"]
       output_balance = pool["quote"]["balance"]
       swap_out_denom = pool["quote"]["denom"]
-      current_price = pool["quote"]["price"]
+      current_price = pool["base"]["price"]
     } else {
       input_balance = pool["quote"]["balance"]
       output_balance = pool["base"]["balance"]
       swap_out_denom = pool["base"]["denom"]
-      current_price = pool["base"]["price"]
+      current_price = pool["quote"]["price"]
     }
 
     let { swapOutB: output_amount } = calculateSwapIn(input_balance, output_balance, swap_in_amount)
 
-    let naive_expected_price = swap_in_amount * current_price
-    let price_impact = output_amount / swap_in_amount - naive_expected_price
+    let expected_output_amount = swap_in_amount * current_price
 
     // calculate slippage assuming output_amount is the expected amount
-    let slippage = Math.abs((naive_expected_price - output_amount) / naive_expected_price)
+    let slippage = ((expected_output_amount - output_amount) / expected_output_amount) * 100
+
 
     result.push({
       pool_id: pool_id,
       in: { amount: swap_in_amount, denom: swap_in_denom },
       out: { amount: output_amount, denom: swap_out_denom },
-      price_impact: price_impact,
       slippage: slippage,
     })
 
@@ -124,29 +123,27 @@ function estimateSwapOut(pool_ids, pools, swap_out_amount, swap_out_denom) {
 
     if (pool["base"]["denom"] === swap_out_denom) {
       output_balance = pool["base"]["balance"]
+      current_price = pool["base"]["price"]
       input_balance = pool["quote"]["balance"]
       swap_in_denom = pool["quote"]["denom"]
-      current_price = pool["quote"]["price"]
     } else {
       output_balance = pool["quote"]["balance"]
+      current_price = pool["quote"]["price"]
       input_balance = pool["base"]["balance"]
       swap_in_denom = pool["base"]["denom"]
-      current_price = pool["base"]["price"]
     }
 
     let { swapInA: input_amount } = calculateSwapOut(input_balance, output_balance, swap_out_amount)
 
-    let naive_expected_price = input_amount * current_price
-    let price_impact = swap_out_amount / input_amount - naive_expected_price
+    let expected_output_amount = input_amount * current_price
 
     // calculate slippage assuming output_amount is the expected amount
-    let slippage = Math.abs((naive_expected_price - swap_out_amount) / naive_expected_price)
+    let slippage = ((expected_output_amount - swap_out_amount) / expected_output_amount) * 100
 
     result.unshift({
       pool_id: pool_id,
       in: { amount: input_amount, denom: swap_in_denom },
       out: { amount: swap_out_amount, denom: swap_out_denom },
-      price_impact: price_impact,
       slippage: slippage,
     })
 
