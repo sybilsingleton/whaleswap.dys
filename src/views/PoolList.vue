@@ -19,8 +19,18 @@ export default {
     }
   },
   computed: {
+    
     pools() {
-      return poolStore.pools
+      // sort pools by quote.balance, pools is an object of pool_id: pool
+      const sortedPools = Object.values(poolStore.pools).sort((a, b) => {
+        const aBalance = a.quote.balance
+        const bBalance = b.quote.balance
+        if (aBalance > bBalance) return -1
+        if (aBalance < bBalance) return 1
+        return 0
+      })
+
+      return sortedPools
     },
     numPools() {
       return poolStore.numPools

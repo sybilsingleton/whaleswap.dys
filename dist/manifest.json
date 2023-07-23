@@ -26,7 +26,7 @@
       "src/views/PoolList.vue",
       "src/views/CreatePool.vue"
     ],
-    "file": "assets/main-b85dd410.js",
+    "file": "assets/main-8acca22c.js",
     "isEntry": true,
     "src": "src/main.js"
   },
@@ -34,7 +34,7 @@
     "assets": [
       "assets/create-bg-1127111c.jpg"
     ],
-    "file": "assets/CreatePool-855512d3.js",
+    "file": "assets/CreatePool-2e6e6725.js",
     "imports": [
       "src/main.js"
     ],
@@ -45,7 +45,7 @@
     "assets": [
       "assets/swap-bg-c6360bc5.jpg"
     ],
-    "file": "assets/PoolList-583800d7.js",
+    "file": "assets/PoolList-06ba7fb6.js",
     "imports": [
       "src/main.js"
     ],

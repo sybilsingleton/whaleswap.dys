@@ -207,7 +207,7 @@ export const usePoolsStore = defineStore("pools", {
       let numTrades = 0
       for (let pool_id in state.pools) {
         let pool = state.pools[pool_id]
-        numTrades += pool.trades || 0
+        numTrades += pool.num_trades || 0
       }
       return numTrades
     },
