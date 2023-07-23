@@ -235,7 +235,7 @@ async function connectWallet() {
             Connect to Keplr
           </button>
           <div
-            v-else
+            v-if="account"
             class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 -mx-6 mt-auto"
           >
             Wallet: {{ account.name }}
