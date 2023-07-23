@@ -12,7 +12,7 @@
     "src": "src/assets/img/swap-bg.jpg"
   },
   "src/main.css": {
-    "file": "assets/main-360edd18.css",
+    "file": "assets/main-86237678.css",
     "src": "src/main.css"
   },
   "src/main.js": {
@@ -20,13 +20,13 @@
       "assets/home-1-e50db91f.jpg"
     ],
     "css": [
-      "assets/main-360edd18.css"
+      "assets/main-86237678.css"
     ],
     "dynamicImports": [
       "src/views/PoolList.vue",
       "src/views/CreatePool.vue"
     ],
-    "file": "assets/main-87ae3f4a.js",
+    "file": "assets/main-4ec45583.js",
     "isEntry": true,
     "src": "src/main.js"
   },
@@ -34,7 +34,7 @@
     "assets": [
       "assets/create-bg-1127111c.jpg"
     ],
-    "file": "assets/CreatePool-bfaf7bf8.js",
+    "file": "assets/CreatePool-583c7919.js",
     "imports": [
       "src/main.js"
     ],
@@ -45,7 +45,7 @@
     "assets": [
       "assets/swap-bg-c6360bc5.jpg"
     ],
-    "file": "assets/PoolList-0c076873.js",
+    "file": "assets/PoolList-501912af.js",
     "imports": [
       "src/main.js"
     ],
