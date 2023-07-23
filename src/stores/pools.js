@@ -123,12 +123,12 @@ function estimateSwapOut(pool_ids, pools, swap_out_amount, swap_out_denom) {
 
     if (pool["base"]["denom"] === swap_out_denom) {
       output_balance = pool["base"]["balance"]
-      current_price = pool["base"]["price"]
+      current_price = pool["quote"]["price"]
       input_balance = pool["quote"]["balance"]
       swap_in_denom = pool["quote"]["denom"]
     } else {
       output_balance = pool["quote"]["balance"]
-      current_price = pool["quote"]["price"]
+      current_price = pool["base"]["price"]
       input_balance = pool["base"]["balance"]
       swap_in_denom = pool["base"]["denom"]
     }
