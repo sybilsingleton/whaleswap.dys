@@ -15,6 +15,8 @@ export default {
       bgUrl: new URL("../assets/img/create-bg.jpg", import.meta.url).href,
     }
   },
+  components: {
+  },
   computed: {
     address: function () {
       return this.account?.bech32Address
@@ -66,21 +68,7 @@ export default {
       <div class="py-10 lg:pl-72">
         <div class="px-4 sm:px-6 lg:px-8">
           <div class="max-w-md">
-            <div class="alert alert-success mx-auto my-4 w-1/2" v-if="txResult?.result">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-
+            <div class="text-success" v-if="txResult?.result">
               <p>
                 Congratulations! A new pool has been successfully created with Pool ID
                 {{ txResult.result.pool_id }}. You have received {{ txResult.result.total_shares }}

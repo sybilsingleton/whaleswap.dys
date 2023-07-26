@@ -2,6 +2,7 @@
 /*global dysonVueStore */
 import { dispatchWrapper } from "./dispatchWrapper.js"
 import { usePoolsStore } from "../stores/pools"
+import DenomUnitConverter from "../components/DenomUnitConverter.vue"
 
 export default {
   name: "HomeView",
@@ -20,9 +21,13 @@ export default {
       txResult: null,
       poolStore: usePoolsStore(),
       home1url: new URL("../assets/img/home-1.jpg", import.meta.url).href,
+      localDisplayDenom: "",
+      localDisplayAmount: "",
     }
   },
-  // watch when poolStore.pools changes
+  components: {
+    DenomUnitConverter,
+  },
   watch: {
     poolStore: {
       handler: function (newVal, oldVal) {
@@ -35,7 +40,7 @@ export default {
     },
     inDenom: {
       handler: function (newVal, oldVal) {
-        this.coins = this.inAmount + " " + this.inDenom
+        this.coins = "0 " + this.inDenom
         if (this.outDenom) {
           this.calculateSwapOut().then((swapInAmount) => {
             this.coins = swapInAmount + " " + this.inDenom
@@ -46,7 +51,6 @@ export default {
     },
     outDenom: {
       handler: function (newVal, oldVal) {
-        this.swap_out_denom = newVal
         if (this.inDenom && this.inAmount) {
           this.calculateSwapIn().then((swapOutAmount) => {
             if (swapOutAmount > 0) {
@@ -65,37 +69,41 @@ export default {
     },
     inAmount: {
       set(newVal) {
-        this.coins = newVal + " " + this.inDenom
+        this.coins = (newVal || "0") + " " + (this.inDenom || "none")
         this.swap_out_denom = this.outDenom
         this.calculateSwapIn().then((swapOutAmount) => {
-          this.minimum_swap_out_amount = swapOutAmount
+          this.minimum_swap_out_amount = swapOutAmount || 0
         })
       },
       get() {
-        return parseInt(this.coins.split(" ")[0])
+        return parseInt(this.coins.split(" ")[0]) || "0"
       },
     },
     outAmount: {
       set(newVal) {
         this.minimum_swap_out_amount = newVal
-        this.swap_out_denom = this.outDenom
         this.calculateSwapOut().then((swapInAmount) => {
           this.coins = swapInAmount + " " + this.inDenom
         })
       },
       get() {
-        return this.minimum_swap_out_amount
+        return this.minimum_swap_out_amount || "0"
       },
     },
   },
   methods: {
     async calculateSwapIn() {
-      const swaps = await this.poolStore.allSwapIns(this.inAmount, this.inDenom, this.outDenom)
-      this.swaps = swaps
       let maxSwapAmount = -Infinity
       let bestSwap = []
       this.bestSwap = bestSwap
       this.pool_ids = []
+      // if in amount is 0, return 0
+      if (this.inAmount == 0) {
+        return 0
+      }
+
+      const swaps = await this.poolStore.allSwapIns(this.inAmount, this.inDenom, this.outDenom)
+      this.swaps = swaps
 
       for (let i = 0; i < swaps.length; i++) {
         const swapPath = swaps[i]
@@ -201,8 +209,13 @@ export default {
                       class="select w-full input-lg input-bordered input-primary"
                     >
                       <option disabled value="">Select coin</option>
+
                       <option v-for="denom in poolStore.denoms" :key="denom" :value="denom">
-                        {{ denom }}
+                        <DenomUnitConverter :internalDenom="denom">
+                          <template v-slot="{ displayDenom, displayName }">
+                            {{ displayDenom }} {{ displayName }}
+                          </template>
+                        </DenomUnitConverter>
                       </option>
                     </select>
                   </div>
@@ -210,15 +223,18 @@ export default {
                     <label class="label">
                       <span class="label-text">Swap In amount</span>
                     </label>
-                    <input
-                      class="input w-full input-lg input-bordered input-primary"
-                      v-model.number="inAmount"
-                      type="number"
-                      min="0"
-                      placeholder="Input Amount"
-                    />
-                  </div>
 
+                    <DenomUnitConverter :internalDenom="inDenom" v-model:internalAmount="inAmount">
+                      <template v-slot="{ displayAmount, displayDenom, handleDisplayChange }">
+                        <input
+                          class="input w-full input-lg input-bordered input-primary"
+                          :value="displayAmount"
+                          @input="(event) => handleDisplayChange(displayDenom, event.target.value)"
+                          placeholder="Input Amount"
+                        />
+                      </template>
+                    </DenomUnitConverter>
+                  </div>
                   <div class="form-control w-full">
                     <label class="label">
                       <span class="label-text">Swap Out Denom</span>
@@ -229,7 +245,11 @@ export default {
                     >
                       <option disabled value="">Select coin</option>
                       <option v-for="denom in poolStore.denoms" :key="denom" :value="denom">
-                        {{ denom }}
+                        <DenomUnitConverter :internalDenom="denom">
+                          <template v-slot="{ displayDenom, displayName }">
+                            {{ displayDenom }} {{ displayName }}
+                          </template>
+                        </DenomUnitConverter>
                       </option>
                     </select>
                   </div>
@@ -237,13 +257,19 @@ export default {
                     <label class="label">
                       <span class="label-text">Minimum Swap Out Amount</span>
                     </label>
-                    <input
-                      class="input w-full input-lg input-bordered input-primary"
-                      v-model.number="outAmount"
-                      type="number"
-                      placeholder="Output Amount"
-                      min="0"
-                    />
+
+                    <DenomUnitConverter :internalDenom="outDenom" v-model:internalAmount="outAmount">
+                      <template v-slot="{ displayAmount, displayDenom, handleDisplayChange }">
+                        <input
+                          class="input w-full input-lg input-bordered input-primary"
+                          :value="displayAmount"
+                          @input="(event) => handleDisplayChange(displayDenom, event.target.value)"
+                          placeholder="Output Amount"
+                        />
+                      </template>
+                    </DenomUnitConverter>
+
+
                   </div>
 
                   <div class="divider"></div>
@@ -265,12 +291,28 @@ export default {
                         <tr v-for="(swap, index) in bestSwap" :key="index">
                           <td>{{ swap.pool_id }}</td>
                           <td>
-                            <span class="text-secondary">{{ swap.in.denom }}</span><br />
-                            {{ swap.in.amount }}<br />
+                            <DenomUnitConverter
+                              :internalDenom="swap.in.denom"
+                              :internalAmount="swap.in.amount"
+                            >
+                              <template v-slot="{ displayDenom, displayAmount }">
+                                <span class="text-secondary">
+                                  {{ displayDenom }} </span
+                                ><br />
+                                {{ displayAmount }}
+                              </template>
+                            </DenomUnitConverter>
                           </td>
                           <td>
-                            <span class="text-accent">{{ swap.out.denom }}</span><br />
-                            {{ swap.out.amount }}<br />
+                            <DenomUnitConverter
+                              :internalDenom="swap.out.denom"
+                              :internalAmount="swap.out.amount"
+                            >
+                              <template v-slot="{ displayDenom, displayAmount }">
+                                <span class="text-accent"> {{ displayDenom }} </span><br />
+                                {{ displayAmount }}
+                              </template>
+                            </DenomUnitConverter>
                           </td>
                           <td>{{ Math.round(swap.slippage) }}%</td>
                         </tr>
@@ -282,8 +324,17 @@ export default {
                   <div v-if="txResult" class="">
                     <div class="alert text-success">
                       <div class="break-words break-all">
-                        You recieved: {{ txResult.result.output_amount }}
-                        {{ txResult.result.output_denom }}
+                        You recieved:
+
+                        <DenomUnitConverter
+                          :internalDenom="txResult.result.output_denom"
+                          :internalAmount="txResult.result.output_amount"
+                        >
+                          <template v-slot="{ displayDenom, displayAmount }">
+                            {{ displayAmount }} {{ displayDenom }}
+                          </template>
+                        </DenomUnitConverter>
+
                         <br />
                         {{ txResult.transactionHash }}
                       </div>
@@ -297,10 +348,25 @@ export default {
                       </div>
                     </div>
                   </div>
-                  <div v-if="bestSwap.length !== 0">
-                    Swap {{ coins }} for at least
-                    {{ minimum_swap_out_amount }}
-                    {{ swap_out_denom }}
+                  <div v-if="bestSwap.length > 0">
+                    Swap
+                    <DenomUnitConverter
+                      :internalDenom="bestSwap[0].in.denom"
+                      :internalAmount="bestSwap[0].in.amount"
+                    >
+                      <template v-slot="{ displayDenom, displayAmount }">
+                        {{ displayAmount }} {{ displayDenom }}
+                      </template>
+                    </DenomUnitConverter>
+                    for at least
+                    <DenomUnitConverter
+                      :internalDenom="swap_out_denom"
+                      :internalAmount="minimum_swap_out_amount"
+                    >
+                      <template v-slot="{ displayDenom, displayAmount }">
+                        {{ displayAmount }} {{ displayDenom }}
+                      </template>
+                    </DenomUnitConverter>
                   </div>
                   <button
                     :disabled="bestSwap.length === 0 || inFlight"
