@@ -1,5 +1,4 @@
 <template>
-  <div>
     <!-- Render the slot with the display values as inputs -->
     <slot
       :displayAmount="displayAmount"
@@ -7,7 +6,6 @@
       :displayName="displayName"
       :handleDisplayChange="handleDisplayChange"
     />
-  </div>
 </template>
 
 <script>
