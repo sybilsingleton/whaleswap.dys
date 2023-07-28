@@ -21,7 +21,7 @@ export function convertToDisplay(internalDenom, internalAmount) {
   )
   let displayDenom = asset.display
 
-  return { denom: displayDenom, amount: displayAmount, name: asset.name, symbol: asset.symbol }
+  return { denom: displayDenom, amount: displayAmount, name: asset.name, symbol: asset.symbol, description: asset.description }
 }
 
 // Convert display representation to internal representation

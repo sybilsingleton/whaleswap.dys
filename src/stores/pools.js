@@ -194,8 +194,8 @@ export const usePoolsStore = defineStore("pools", {
       let tvl = 0
       for (let pool_id in state.pools) {
         let pool = state.pools[pool_id]
-        tvl += pool.base.balance * pool.base.price
-        tvl += pool.quote.balance
+        //tvl += pool.base.balance * pool.base.price
+        tvl += pool.quote.balance * 2
       }
       return tvl  
     },

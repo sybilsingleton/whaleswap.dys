@@ -3,6 +3,7 @@
 import { dispatchWrapper } from "./dispatchWrapper.js"
 import { usePoolsStore } from "../stores/pools"
 import DenomUnitConverter from "../components/DenomUnitConverter.vue"
+import { useBalanceStore } from "../stores/balance.js"
 
 export default {
   name: "HomeView",
@@ -23,12 +24,16 @@ export default {
       home1url: new URL("../assets/img/home-1.jpg", import.meta.url).href,
       localDisplayDenom: "",
       localDisplayAmount: "",
+      balanceStore: useBalanceStore(),
     }
   },
   components: {
     DenomUnitConverter,
   },
   watch: {
+    address: function (newAddress) {
+      this.balanceStore.fetchBalances(newAddress)
+    },
     poolStore: {
       handler: function (newVal, oldVal) {
         console.log("poolStore changed")
@@ -71,9 +76,11 @@ export default {
       set(newVal) {
         this.coins = (newVal || "0") + " " + (this.inDenom || "none")
         this.swap_out_denom = this.outDenom
-        this.calculateSwapIn().then((swapOutAmount) => {
-          this.minimum_swap_out_amount = swapOutAmount || 0
-        })
+        if (this.outDenom) {
+          this.calculateSwapIn().then((swapOutAmount) => {
+            this.minimum_swap_out_amount = swapOutAmount || 0
+          })
+        }
       },
       get() {
         return parseInt(this.coins.split(" ")[0]) || "0"
@@ -186,6 +193,7 @@ export default {
   },
   mounted() {
     this.poolStore.setupWebsocket()
+    this.balanceStore.fetchBalances(this.address)
   },
 }
 </script>
@@ -229,11 +237,25 @@ export default {
                         <input
                           class="input w-full input-lg input-bordered input-primary"
                           :value="displayAmount"
+                          type="number"
                           @input="(event) => handleDisplayChange(displayDenom, event.target.value)"
                           placeholder="Input Amount"
                         />
                       </template>
                     </DenomUnitConverter>
+
+                        <DenomUnitConverter
+                          :internalDenom="inDenom"
+                          :internalAmount="balanceStore.balances[inDenom]"
+                        >
+                          <template v-slot="{ displayAmount }">
+                            <label class="label">
+                              <span class="label-text text-secondary">
+                                Available: {{ parseFloat(displayAmount).toLocaleString() }}
+                              </span>
+                            </label>
+                          </template>
+                        </DenomUnitConverter>
                   </div>
                   <div class="form-control w-full">
                     <label class="label">
@@ -266,6 +288,7 @@ export default {
                         <input
                           class="input w-full input-lg input-bordered input-primary"
                           :value="displayAmount"
+                          type="number"
                           @input="(event) => handleDisplayChange(displayDenom, event.target.value)"
                           placeholder="Output Amount"
                         />

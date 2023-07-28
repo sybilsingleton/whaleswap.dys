@@ -1,10 +1,7 @@
 <script>
 /*global dysonVueStore */
-
 import { dispatchWrapper } from "./dispatchWrapper.js"
-
 import DenomUnitConverter from "../components/DenomUnitConverter.vue"
-
 import { useBalanceStore } from "../stores/balance.js"
 
 export default {
@@ -32,7 +29,7 @@ export default {
     },
     validDenoms: function () {
       return Object.keys(this.balanceStore.balances).filter(
-        (denom) => denom.startsWith("ibc/") || denom.endsWith(".dys"),
+        (denom) =>  (!denom.startsWith("pool-") && !denom.endsWith(".whaleswap.dys")) && denom !== "dys",
       )
     },
   },
@@ -117,7 +114,11 @@ export default {
                           v-model="baseDenom"
                           class="select select-bordered w-full max-w-xs"
                         >
-                          <option v-for="_, denom  in balanceStore.balances" :value="denom" :key="address + denom">
+                          <option
+                            v-for="denom in validDenoms"
+                            :value="denom"
+                            :key="address + denom"
+                          >
                             <DenomUnitConverter :internalDenom="denom">
                               <template v-slot="{ displayDenom, displayName }">
                                 {{ displayDenom.toUpperCase() }} {{ displayName }}
@@ -144,7 +145,9 @@ export default {
                         >
                           <template v-slot="{ displayAmount }">
                             <label class="label">
-                              <span class="label-text"> Available: {{ displayAmount.toLocaleString() }} </span>
+                              <span class="label-text text-secondary">
+                                Available: {{ displayAmount.toLocaleString() }}
+                              </span>
                             </label>
                           </template>
                         </DenomUnitConverter>
