@@ -14,7 +14,7 @@ import { convertToInternal, convertToDisplay } from "../components/denomunitconv
 export default {
   props: {
     internalAmount: {
-      type: Number,
+      type: [Number, Object, String],
       required: false,
       default: 0,
     },
@@ -29,6 +29,7 @@ export default {
       displayAmount: "0",
       displayDenom: "",
       displayName: "",
+      displaySymbol: "",
     }
   },
   watch: {
@@ -49,17 +50,13 @@ export default {
     this.displayName = display.name
     this.displayAmount = display.amount
     this.displayDenom = display.denom
+    this.displaySymbol = display.symbol
   },
   methods: {
     // When display values change, update the internal values and emit the change event
     handleDisplayChange(displayDenom, displayAmount) {
-      // if the displayAmount is flalsey, set it to 0
-      if (!displayAmount) {
-        return
-      }
       const internal = convertToInternal(displayDenom, displayAmount)
 
-      console.log("handleDisplayChange", displayAmount, displayDenom, internal)
       this.$emit("update:internalAmount", internal.amount)
       this.$emit("update:internalDenom", internal.denom)
     },

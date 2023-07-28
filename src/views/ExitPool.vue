@@ -1,15 +1,15 @@
 <script>
-import { dispatchWrapper } from './dispatchWrapper.js'
+import { dispatchWrapper } from "./dispatchWrapper.js"
 
 export default {
-  props: ['pool', 'account'],
+  props: ["pool", "account"],
   data() {
     return {
-      coins: '',
-      error: '',
+      coins: "",
+      error: "",
       inFlight: false,
       txResult: null,
-      availableShares: 'Loading...',
+      availableShares:0,
     }
   },
   computed: {
@@ -22,8 +22,8 @@ export default {
   },
   methods: {
     async fetchPoolShares() {
-      console.log('fetching pool shares', this.sharesDenom)
-      let command = 'cosmos.bank.v1beta1/QueryBalance'
+      console.log("fetching pool shares", this.sharesDenom)
+      let command = "cosmos.bank.v1beta1/QueryBalance"
       let data = {
         query: {
           denom: this.sharesDenom,
@@ -32,18 +32,18 @@ export default {
           address: this.address,
         },
       }
-      return (await dysonVueStore.dispatch(command, data)).balance.amount
+      return parseInt((await dysonVueStore.dispatch(command, data)).balance.amount)
     },
 
     async exitPool(pool_id, coins) {
       this.inFlight = true
-      this.error = ''
-      let command = 'dyson/sendMsgRun'
+      this.error = ""
+      let command = "dyson/sendMsgRun"
       let data = {
         value: {
           creator: this.address,
-          address: 'whaleswap.dys',
-          function_name: 'exit_pool',
+          address: "whaleswap.dys",
+          function_name: "exit_pool",
           kwargs: JSON.stringify({
             pool_id: pool_id,
           }),
@@ -51,11 +51,11 @@ export default {
         },
         fee: [
           {
-            amount: '223',
-            denom: 'dys',
+            amount: "223",
+            denom: "dys",
           },
         ],
-        gas: '2230000',
+        gas: "2230000",
       }
       try {
         console.log(data)
@@ -74,15 +74,15 @@ export default {
   watch: {
     pool: {
       handler: async function (pool) {
-        console.log('pool changed', pool.pool_id)
+        console.log("pool changed", pool.pool_id)
         this.availableShares = await this.fetchPoolShares()
       },
       deep: true,
     },
     account: {
       handler: async function (account) {
-        console.log('account changed', account)
-        this.availableShares = 'Loading...'
+        console.log("account changed", account)
+        this.availableShares = 0
         this.availableShares = await this.fetchPoolShares()
       },
       deep: true,
@@ -112,12 +112,12 @@ export default {
     <h1 class="text-2xl font-bold text-base-content">Exit Pool</h1>
     <div class="grid flex-grow card">
       <div class="alert">
-        <span class=""> Total shares: {{ pool.total_shares }} </span>
         <span class="">
-          Your shares: {{ availableShares }} ({{
+          Your shares: {{ availableShares.toLocaleString() }} ({{
             (availableShares / pool.total_shares) * 100
-          }}%)</span
-        >
+          }}%)
+        </span >
+        <span class=""> Total shares: {{ pool.total_shares.toLocaleString() }} </span>
       </div>
       <div class="form-control">
         <label class="label">
@@ -130,7 +130,7 @@ export default {
           v-model="coins"
         />
         <label class="label">
-          <span class="label-text text-lg">{{ sharesDenom }}</span>
+          <span class="label-text text-lg uppercase">{{ sharesDenom }}</span>
         </label>
       </div>
     </div>

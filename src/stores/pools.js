@@ -188,7 +188,6 @@ export const usePoolsStore = defineStore("pools", {
   }),
   getters: {
     numPools: (state) => {
-      console.log("numPools", Object.keys(state.pools).length)
       return Object.keys(state.pools).length
     },
     tvl: (state) => {
@@ -333,11 +332,8 @@ export const usePoolsStore = defineStore("pools", {
           }
         },
         autoReconnect: {
-          retries: 10,
+          retries: -1,
           delay: 1000,
-          onFailed() {
-            alert("Failed to connect WebSocket after 10 retries, please refresh the page")
-          },
         },
       })
       await this.fetchPools()

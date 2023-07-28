@@ -258,7 +258,10 @@ export default {
                       <span class="label-text">Minimum Swap Out Amount</span>
                     </label>
 
-                    <DenomUnitConverter :internalDenom="outDenom" v-model:internalAmount="outAmount">
+                    <DenomUnitConverter
+                      :internalDenom="outDenom"
+                      v-model:internalAmount="outAmount"
+                    >
                       <template v-slot="{ displayAmount, displayDenom, handleDisplayChange }">
                         <input
                           class="input w-full input-lg input-bordered input-primary"
@@ -268,8 +271,6 @@ export default {
                         />
                       </template>
                     </DenomUnitConverter>
-
-
                   </div>
 
                   <div class="divider"></div>
@@ -296,9 +297,7 @@ export default {
                               :internalAmount="swap.in.amount"
                             >
                               <template v-slot="{ displayDenom, displayAmount }">
-                                <span class="text-secondary">
-                                  {{ displayDenom }} </span
-                                ><br />
+                                <span class="text-secondary"> {{ displayDenom }} </span><br />
                                 {{ displayAmount }}
                               </template>
                             </DenomUnitConverter>

@@ -16,10 +16,12 @@ export function convertToDisplay(internalDenom, internalAmount) {
   let internalUnit = asset.denom_units.find((unit) => unit.denom === internalDenom)
   let displayUnit = asset.denom_units.find((unit) => unit.denom === asset.display)
 
-  let displayAmount = new Decimal(internalAmount || "0").div(new Decimal(10).pow(displayUnit.exponent))
+  let displayAmount = new Decimal(internalAmount || "0").div(
+    new Decimal(10).pow(displayUnit.exponent),
+  )
   let displayDenom = asset.display
 
-  return { denom: displayDenom, amount: displayAmount, name: asset.name }
+  return { denom: displayDenom, amount: displayAmount, name: asset.name, symbol: asset.symbol }
 }
 
 // Convert display representation to internal representation
@@ -31,8 +33,10 @@ export function convertToInternal(displayDenom, displayAmount) {
   let displayUnit = asset.denom_units.find((unit) => unit.denom === displayDenom)
   let internalUnit = asset.denom_units.find((unit) => unit.denom === asset.base)
 
-  let internalAmount = new Decimal(displayAmount|| "0").mul(new Decimal(10).pow(displayUnit.exponent))
+  let internalAmount = new Decimal(displayAmount || "0").mul(
+    new Decimal(10).pow(displayUnit.exponent),
+  )
   let internalDenom = asset.base
 
-  return { denom: internalDenom, amount: internalAmount}
+  return { denom: internalDenom, amount: internalAmount }
 }

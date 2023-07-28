@@ -3,6 +3,10 @@
 
 import { dispatchWrapper } from "./dispatchWrapper.js"
 
+import DenomUnitConverter from "../components/DenomUnitConverter.vue"
+
+import { useBalanceStore } from "../stores/balance.js"
+
 export default {
   props: ["account"],
   data() {
@@ -13,9 +17,11 @@ export default {
       error: "",
       txResult: null,
       bgUrl: new URL("../assets/img/create-bg.jpg", import.meta.url).href,
+      balanceStore: useBalanceStore(),
     }
   },
   components: {
+    DenomUnitConverter,
   },
   computed: {
     address: function () {
@@ -23,6 +29,11 @@ export default {
     },
     coins: function () {
       return this.baseAmount + " " + this.baseDenom + " , " + this.dysAmount + " dys"
+    },
+    validDenoms: function () {
+      return Object.keys(this.balanceStore.balances).filter(
+        (denom) => denom.startsWith("ibc/") || denom.endsWith(".dys"),
+      )
     },
   },
   methods: {
@@ -59,6 +70,18 @@ export default {
       }
     },
   },
+  watch: {
+    baseDenom: function (newDenom) {
+      this.baseAmount = ""
+    },
+    address: function (newAddress) {
+      console.log("address changed, fetching balances", newAddress)
+      this.balanceStore.fetchBalances(newAddress)
+    },
+  },
+  mounted() {
+    this.balanceStore.fetchBalances(this.address)
+  },
 }
 </script>
 <template>
@@ -80,39 +103,73 @@ export default {
               <form @submit.prevent="createPool">
                 <div class="card-body items-center text-center">
                   <h2 class="card-title">Create Pool</h2>
+                  <DenomUnitConverter
+                    v-model:internalDenom="baseDenom"
+                    v-model:internalAmount="baseAmount"
+                  >
+                    <template v-slot="{ displayAmount, displayDenom, handleDisplayChange }">
+                      <div class="form-control w-full">
+                        <label class="label" for="baseDenom">
+                          <span class="label-text">Base Denom</span>
+                        </label>
+                        <select
+                          id="baseDenom"
+                          v-model="baseDenom"
+                          class="select select-bordered w-full max-w-xs"
+                        >
+                          <option v-for="_, denom  in balanceStore.balances" :value="denom" :key="address + denom">
+                            <DenomUnitConverter :internalDenom="denom">
+                              <template v-slot="{ displayDenom, displayName }">
+                                {{ displayDenom.toUpperCase() }} {{ displayName }}
+                              </template>
+                            </DenomUnitConverter>
+                          </option>
+                        </select>
+                      </div>
 
-                  <div class="form-control w-full">
-                    <label class="label">
-                      <span class="label-text">Base Amount</span>
-                    </label>
-                    <input
-                      v-model="baseAmount"
-                      type="text"
-                      class="input input-bordered join-item input-primary"
-                    />
-                  </div>
+                      <div class="form-control w-full">
+                        <label class="label" for="baseAmount">
+                          <span class="label-text">Base Amount</span>
+                        </label>
+                        <input
+                          id="baseAmount"
+                          :value="displayAmount"
+                          @input="(event) => handleDisplayChange(displayDenom, event.target.value)"
+                          type="text"
+                          class="input input-bordered join-item input-primary"
+                        />
+                        <DenomUnitConverter
+                          :internalDenom="baseDenom"
+                          :internalAmount="balanceStore.balances[baseDenom]"
+                        >
+                          <template v-slot="{ displayAmount }">
+                            <label class="label">
+                              <span class="label-text"> Available: {{ displayAmount.toLocaleString() }} </span>
+                            </label>
+                          </template>
+                        </DenomUnitConverter>
+                      </div>
+                    </template>
+                  </DenomUnitConverter>
 
-                  <div class="form-control w-full">
-                    <label class="label">
-                      <span class="label-text">Base Denom</span>
-                    </label>
-                    <input
-                      v-model="baseDenom"
-                      type="text"
-                      class="input input-bordered join-item input-primary"
-                    />
-                  </div>
                   =
 
                   <div class="form-control w-full">
-                    <label class="label">
+                    <label class="label" for="dysAmount">
                       <span class="label-text">Quote Amount in DYS</span>
                     </label>
                     <input
+                      id="dysAmount"
                       v-model="dysAmount"
                       type="text"
                       class="input input-bordered join-item input-primary"
                     />
+
+                    <label class="label">
+                      <span class="label-text">
+                        Available: {{ (balanceStore.balances['dys'] || 0).toLocaleString() }}
+                      </span>
+                    </label>
                   </div>
 
                   <div class="text-red-500" v-if="error">Error: {{ error }}</div>
