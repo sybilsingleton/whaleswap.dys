@@ -1,11 +1,13 @@
 <template>
-    <!-- Render the slot with the display values as inputs -->
-    <slot
-      :displayAmount="displayAmount"
-      :displayDenom="displayDenom"
-      :displayName="displayName"
-      :handleDisplayChange="handleDisplayChange"
-    />
+  <!-- Render the slot with the display values as inputs -->
+  <slot
+    :displayAmount="displayAmount"
+    :displayDenom="displayDenom"
+    :displayName="displayName"
+    :displaySymbol="displaySymbol"
+    :displayDescription="displayDescription"
+    :handleDisplayChange="handleDisplayChange"
+  />
 </template>
 
 <script>
@@ -30,6 +32,7 @@ export default {
       displayDenom: "",
       displayName: "",
       displaySymbol: "",
+      displayDescription: "",
     }
   },
   watch: {
@@ -41,7 +44,10 @@ export default {
     internalDenom(val) {
       const display = convertToDisplay(val, this.internalAmount)
       this.displayName = display.name
+      this.displayAmount = display.amount
       this.displayDenom = display.denom
+      this.displaySymbol = display.symbol
+      this.displayDescription = display.description
     },
   },
   mounted() {
@@ -51,6 +57,7 @@ export default {
     this.displayAmount = display.amount
     this.displayDenom = display.denom
     this.displaySymbol = display.symbol
+    this.displayDescription = display.description
   },
   methods: {
     // When display values change, update the internal values and emit the change event
