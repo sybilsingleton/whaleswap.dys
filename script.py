@@ -1,10 +1,15 @@
 """
-WhaleSwap.dys - A Simple AMM
+WhaleSwap.dys - Minimal AMM on Dyson Protocol
+
+Website:  https://whaleswap.dysonprotocol.com/
+Twitter:  https://twitter.com/whaleswap_dys
+GitHub:   https://github.com/sybilsingleton/whaleswap.dys
 """
 
 import json
 import math
 from decimal import Decimal
+from string import Template
 
 from dys import (
     BLOCK_INFO,
@@ -94,7 +99,7 @@ def create_pool():
         "block_height": BLOCK_INFO.height,
         "created": BLOCK_INFO.time,
     }
-
+    print("emit", emit_event(key="poolupdate", value=str(pool_id)))
     result = _chain(
         "dyson/sendMsgCreateStorage",
         creator=SCRIPT_ADDRESS,
@@ -204,7 +209,7 @@ def join_pool(pool_id: str):
         amount=[{"amount": str(shares), "denom": shares_denom}],
     )
     assert result["error"] is None, f"Error sending shares: {result['error']}"
-    print("emit", emit_event(key="poolupdate", value=pool_id))
+    print("emit", emit_event(key="poolupdate", value=str(pool_id)))
 
     result = _chain(
         "dyson/sendMsgUpdateStorage",
@@ -295,20 +300,12 @@ def exit_pool(pool_id: str):
     )
     assert result["error"] is None, f"Error sending coins: {result['error']} {coins}"
     print("emit", emit_event(key="poolupdate", value=str(pool_id)))
-    if pool["quote"]["balance"] == 0 and pool["base"]["balance"] == 0:
-        result = _chain(
-            "dyson/sendMsgDeleteStorage",
-            creator=SCRIPT_ADDRESS,
-            index=_get_pool_index(pool_id),
-        )
-
-    else:
-        result = _chain(
-            "dyson/sendMsgUpdateStorage",
-            creator=SCRIPT_ADDRESS,
-            index=_get_pool_index(pool_id),
-            data=json.dumps(pool),
-        )
+    result = _chain(
+        "dyson/sendMsgUpdateStorage",
+        creator=SCRIPT_ADDRESS,
+        index=_get_pool_index(pool_id),
+        data=json.dumps(pool),
+    )
     assert (
         result["error"] is None
     ), f"Error updating updating storage: {result['error']}"
@@ -355,6 +352,8 @@ def swap(pool_ids: str, minimum_swap_out_amount: int, swap_out_denom: str):
         input_denom = output_denom
         input_amount = output_amount
         pool["updated"] = BLOCK_INFO.time
+        pool["num_trades"] = 1 + pool.get("num_trades", 0)
+
         print("emit", emit_event(key="poolupdate", value=str(pool_id)))
         result = _chain(
             "dyson/sendMsgUpdateStorage",
@@ -385,3 +384,93 @@ def swap(pool_ids: str, minimum_swap_out_amount: int, swap_out_denom: str):
     return {"output_amount": output_amount, "output_denom": output_denom}
 
 
+DEFAULT_VERSION = "v1.0.0"
+
+
+def parse_cookies(cookie_str):
+    cookies = {}
+    for item in cookie_str.split("; "):
+        if "=" in item:
+            key, value = item.split("=", 1)
+            cookies[key] = value
+    return cookies
+
+
+def parse_qs(qs):
+    parameters = {}
+    for item in qs.split("&"):
+        if "=" in item:
+            key, value = item.split("=", 1)
+            parameters[key] = value
+    return parameters
+
+
+def wsgi(environ, start_response):
+    # parse query string and cookies
+    parameters = parse_qs(environ.get("QUERY_STRING", ""))
+    cookies = parse_cookies(environ.get("HTTP_COOKIE", ""))
+
+    # get the version from the query string, cookie, or default
+    version = parameters.get("version", cookies.get("version", DEFAULT_VERSION))
+    headers = [
+        ("Content-type", "text/html; charset=UTF-8"),
+        ("Set-Cookie", f"version={version}; Path=/; HttpOnly"),
+    ]
+
+    path_info = environ.get("PATH_INFO", "")
+    if path_info.startswith("/assets/"):
+        status = "302 Found"
+        headers += [
+            (
+                "Location",
+                f"https://cdn.jsdelivr.net/gh/sybilsingleton/whaleswap.dys@{version}/dist/assets/"
+                + path_info[len("/assets/") :],
+            ),
+        ]
+        start_response(status, headers)
+        return []
+
+    status = "200 OK"
+
+    # Prepare the JavaScript code for fetching the manifest file
+    manifest_url = f"https://cdn.jsdelivr.net/gh/sybilsingleton/whaleswap.dys@{version}/dist/manifest.json"
+    js_code = f"""
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {{
+            fetch('{manifest_url}')
+                .then(response => response.json())
+                .then(data => {{
+                    let mainJS = 'https://cdn.jsdelivr.net/gh/sybilsingleton/whaleswap.dys@{version}/dist/' + data["src/main.js"]["file"];
+                    let mainCSS = 'https://cdn.jsdelivr.net/gh/sybilsingleton/whaleswap.dys@{version}/dist/' + data["src/main.css"]["file"];
+
+                    // Set sources
+                    document.querySelector('link[rel="stylesheet"]').href = mainCSS;
+                    
+                    // Create script tag dynamically
+                    let script = document.createElement('script');
+                    script.type = 'module';
+                    script.src = mainJS;
+                    document.head.appendChild(script);
+                }});
+        }});
+    </script>
+    """
+
+    html_markup = f"""<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhaleSwap.dys</title>
+    <script src="/_/dyson.js"></script>
+    <script type="module" src=""></script>
+    <link rel="stylesheet" href="">
+  </head>
+  <body class="container mx-auto" id="app">
+  </body>
+    {js_code}
+</html>"""
+
+    start_response(status, headers)
+
+    return [html_markup.encode()]
